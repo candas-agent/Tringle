@@ -1,7 +1,7 @@
 // =====================================================================
 //  Support de cintres (« triangles ») pour placard
-//  Fixé à la fois SOUS l'étagère du haut (boulons M4 traversants)
-//  et CONTRE le fond du placard (2 vis à bois).
+//  Fixé à la fois SOUS l'étagère du haut (3 vis à bois, sans percer
+//  l'étagère de part en part) et CONTRE le fond du placard (2 vis à bois).
 //
 //  Repère :  Y = profondeur (0 = fond du placard, vers la porte)
 //            Z = hauteur    (0 = dessous de l'étagère, vers le bas < 0)
@@ -52,13 +52,20 @@ haut_bosse = 9;
 haut_crochet = 45;
 
 /* [Fixations] */
-// Positions (Y) des boulons M4 dans l'étagère
-boulons_etagere = [30, 220];
-// Diamètre de passage des boulons / vis
+// Positions (Y) des vis dans l'étagère (sur les bosses / zones plates)
+vis_etagere = [28, 148, 226];
+// Épaisseur de l'étagère (mm) - À MESURER
+ep_etagere = 18;
+// Longueur des vis de l'étagère (mm)
+long_vis_etagere = 16;
+// Plastique restant sous la tête de vis (mm)
+ep_sous_tete = 5;
+// Diamètre du lamage pour la tête de vis (mm)
+d_lamage = 9;
+// Diamètre des trous d'accès du tournevis à travers le bras (mm)
+d_acces = 10;
+// Diamètre de passage des vis
 d_passage = 4.5;
-// Écrou M4 : surplat (mm) et épaisseur (mm)
-ecrou_surplat = 7;
-ecrou_ep = 3.2;
 // Diamètre de tête des vis à bois fraisées (vis du fond)
 d_tete_vis = 8.5;
 
@@ -81,6 +88,7 @@ y_poteau      = longueur - ep_poteau;
 derniere      = premiere_encoche + (nb_cintres - 1) * pas;
 vis_fond_z    = [z_dos_bas + 12, z_bras_bas - chanfrein - 6];
 r_conge       = 6;
+vis_dans_bois = long_vis_etagere - ep_sous_tete;
 
 // ---------------------------------------------------------------------
 // Vérifications : la pièce ne doit pas toucher la porte
@@ -93,12 +101,19 @@ assert(derniere + marge_veste <= profondeur_placard,
            " mm) toucherait la porte"));
 assert(derniere + pas / 2 <= y_poteau - 2,
        "Les encoches débordent sur le poteau avant : réduire pas ou nb_cintres");
+assert(vis_dans_bois <= ep_etagere - 3,
+       str("Les vis (", long_vis_etagere, " mm) traverseraient l'étagère de ",
+           ep_etagere, " mm : prendre des vis plus courtes"));
+assert(vis_dans_bois >= 8, "Vis trop courtes : moins de 8 mm dans l'étagère");
+assert(ep_haut - ep_sous_tete >= 4, "Lamage trop profond pour la barre haute");
 assert(premiere_encoche - pas / 2 >= ep_dos + 2,
        "La première encoche est trop près du fond");
 
 echo(str("Encombrement : ", longueur, " mm de profondeur x ",
          -z_dos_bas, " mm de haut x ", largeur, " mm de large"));
 echo(str("Encoches à : ", [for (i = [0:nb_cintres-1]) premiere_encoche + i * pas], " mm du fond"));
+echo(str("Vis étagère : ", long_vis_etagere, " mm, dont ", vis_dans_bois,
+         " mm dans le bois (étagère de ", ep_etagere, " mm)"));
 echo(str("Veste la plus en avant jusqu'à ~", derniere + marge_veste,
          " mm (porte à ", profondeur_placard, " mm)"));
 
@@ -146,12 +161,13 @@ module support() {
         rotate([90, 0, 90])
             linear_extrude(height = largeur, center = true) profil();
 
-        // Boulons M4 dans l'étagère + logement d'écrou côté fenêtre
-        for (y = boulons_etagere) translate([0, y, 0]) {
+        // Vis à bois dans l'étagère, posées par en dessous :
+        //  - trou de passage + lamage dans la barre haute (tête noyée)
+        //  - trou d'accès vertical à travers le bras pour le tournevis
+        for (y = vis_etagere) translate([0, y, 0]) {
             translate([0, 0, -ep_haut - 1]) cylinder(d = d_passage, h = ep_haut + 2);
-            // écrou hexagonal, pointe vers +X (= vers le haut à l'impression)
-            translate([0, 0, -ep_haut - 0.01])
-                cylinder(d = (ecrou_surplat + 0.3) / cos(30), h = ecrou_ep + 0.4, $fn = 6);
+            translate([0, 0, -ep_haut - 1]) cylinder(d = d_lamage, h = ep_haut - ep_sous_tete + 1);
+            translate([0, 0, z_bras_bas - 1]) cylinder(d = d_acces, h = z_bosse - z_bras_bas + 2);
         }
 
         // Vis à bois fraisées dans le fond (sous le bras, accessibles de face)
