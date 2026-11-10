@@ -43,6 +43,10 @@ r_galbe = 30;
 ventre = 4;
 // Arrondi des arêtes de la face supérieure à l'impression (mm)
 r_bord = 2.5;
+// Montants reliant la barre haute au bras, sur chaque bosse
+montants = true;
+// Largeur des montants à leur point le plus fin (mm)
+ep_montant = 8;
 
 /* [Encoches pour cintres] */
 nb_cintres = 5;
@@ -57,7 +61,7 @@ haut_crochet = 45;
 
 /* [Fixations] */
 // Positions (Y) des vis dans l'étagère (sur les bosses / zones plates)
-vis_etagere = [28, 108, 188];
+vis_etagere = [28, 222];
 // Épaisseur de l'étagère (mm) - À MESURER
 ep_etagere = 18;
 // Longueur des vis de l'étagère (mm)
@@ -92,7 +96,8 @@ y_poteau      = longueur - ep_poteau;
 derniere      = premiere_encoche + (nb_cintres - 1) * pas;
 vis_fond_z    = [z_dos_bas + 13, z_dos_bas + 33];
 z_queue_haut  = z_dos_bas + 42;     // fin de la face plane des vis du fond
-r_conge       = 10;
+r_conge       = 12;
+y_montants    = [for (i = [0 : nb_cintres - 2]) premiere_encoche + pas / 2 + i * pas];
 vis_dans_bois = long_vis_etagere - ep_sous_tete;
 
 // ---------------------------------------------------------------------
@@ -111,6 +116,11 @@ assert(vis_dans_bois <= ep_etagere - 3,
            ep_etagere, " mm : prendre des vis plus courtes"));
 assert(vis_dans_bois >= 8, "Vis trop courtes : moins de 8 mm dans l'étagère");
 assert(ep_haut - ep_sous_tete >= 4, "Lamage trop profond pour la barre haute");
+assert(!montants || pas - ep_montant >= 2 * r_conge + 4,
+       "Compartiments trop étroits entre les montants : augmenter pas");
+for (v = vis_etagere) for (m = montants ? y_montants : [])
+    assert(abs(v - m) >= ep_montant / 2 + d_acces / 2 + r_conge,
+           str("La vis à ", v, " mm tombe sur le montant à ", m, " mm"));
 assert(premiere_encoche - pas / 2 >= ep_dos + 2,
        "La première encoche est trop près du fond");
 
@@ -126,8 +136,12 @@ echo(str("Veste la plus en avant jusqu'à ~", derniere + marge_veste,
 // Profil 2D (y, z)
 // ---------------------------------------------------------------------
 // Hauteur du dessus du bras en fonction de y : creux sinusoïdaux
+// Derrière la 1re encoche, le bras remonte en rampe vers le fond pour que
+// le cintre retombe toujours dans son encoche.
 function dessus_bras(y) =
-    (y < premiere_encoche - pas / 2 || y > derniere + pas / 2)
+    (y < premiere_encoche - pas / 2)
+        ? z_bosse + 0.035 * pow(premiere_encoche - pas / 2 - y, 2)
+    : (y > derniere + pas / 2)
         ? z_bosse
         : z_creux + haut_bosse * (1 - cos(360 * (y - premiere_encoche) / pas)) / 2;
 
@@ -175,7 +189,13 @@ module fenetre() {
         [for (y = [derniere + pas / 2 : -0.5 : ep_dos]) [y, dessus_bras(y)]]
     );
     // ouverture morphologique = congés dans les angles du cadre
-    offset(r = r_conge) offset(delta = -r_conge) polygon(pts);
+    // (les congés donnent aux montants leur forme en os)
+    offset(r = r_conge) offset(delta = -r_conge) difference() {
+        polygon(pts);
+        if (montants) for (y = y_montants)
+            translate([y - ep_montant / 2, z_bosse - 5])
+                square([ep_montant, -ep_haut - z_bosse + 10]);
+    }
 }
 
 module profil() {
