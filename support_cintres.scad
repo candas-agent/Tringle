@@ -7,10 +7,10 @@
 //            Z = hauteur    (0 = dessous de l'étagère, vers le bas < 0)
 //            X = largeur de la pièce (centrée sur 0)
 //
-//  Principe : un cadre fermé (dos + barre haute + poteau avant + bras
-//  à encoches). Le bras est soutenu aux DEUX bouts, il ne travaille donc
-//  plus en porte-à-faux comme les supports d'origine. Les cintres
-//  s'accrochent par le côté, à travers la fenêtre du cadre.
+//  Principe : une poutre ajourée (barre haute + bras reliés par des
+//  montants), un logement en U par cintre. Le bras ne travaille plus en
+//  porte-à-faux comme les supports d'origine. Les cintres s'accrochent
+//  par le côté, dans leur logement.
 //
 //  Impression : à plat sur le côté (face X sur le plateau), sans support.
 //  Voir README.md pour les réglages et le montage.
@@ -31,37 +31,31 @@ largeur = 20;
 ep_haut = 12;
 // Épaisseur de la plaque de dos (mm)
 ep_dos = 8;
-// Épaisseur du poteau avant (mm)
-ep_poteau = 14;
-// Épaisseur du bras sous le fond des encoches (mm)
+// Épaisseur du bras sous le fond des logements (mm)
 ep_bras = 14;
 // Descente de la queue du dos sous le bras (zone des vis du fond) (mm)
-descente_dos = 60;
-// Rayon des grands arrondis (avant du cadre, angles de la fenêtre) (mm)
-r_galbe = 30;
+descente_dos = 70;
+// Rayon du grand arrondi avant-bas (mm)
+r_galbe = 45;
 // Galbe du ventre sous le bras (mm, 0 = droit)
-ventre = 4;
+ventre = 5;
+// Rayon des angles hauts des logements (mm)
+r_haut = 10;
 // Arrondi des arêtes de la face supérieure à l'impression (mm)
 r_bord = 2.5;
-// Montants reliant la barre haute au bras, sur chaque bosse
-montants = true;
-// Largeur des montants à leur point le plus fin (mm)
+// Largeur des montants entre deux logements (mm)
 ep_montant = 8;
 
-/* [Encoches pour cintres] */
+/* [Logements pour cintres] */
 nb_cintres = 5;
 // Distance entre deux cintres (mm)
 pas = 40;
-// Position de la 1re encoche depuis le fond (mm)
+// Position du 1er cintre depuis le fond (mm)
 premiere_encoche = 48;
-// Hauteur des bosses entre les encoches (mm)
-haut_bosse = 9;
 // Hauteur du crochet de cintre au-dessus de son point d'appui (mm)
 haut_crochet = 45;
 
 /* [Fixations] */
-// Positions (Y) des vis dans l'étagère (sur les bosses / zones plates)
-vis_etagere = [28, 222];
 // Épaisseur de l'étagère (mm) - À MESURER
 ep_etagere = 18;
 // Longueur des vis de l'étagère (mm)
@@ -70,7 +64,7 @@ long_vis_etagere = 16;
 ep_sous_tete = 5;
 // Diamètre du lamage pour la tête de vis (mm)
 d_lamage = 9;
-// Diamètre des trous d'accès du tournevis à travers le bras (mm)
+// Diamètre des tunnels d'accès du tournevis (mm)
 d_acces = 10;
 // Diamètre de passage des vis
 d_passage = 4.5;
@@ -86,88 +80,74 @@ $fn = 48;
 // ---------------------------------------------------------------------
 // Grandeurs dérivées
 // ---------------------------------------------------------------------
-jeu_crochet   = 6;
-z_fenetre_h   = -ep_haut;
-z_creux       = -ep_haut - (haut_crochet + haut_bosse + jeu_crochet);
-z_bosse       = z_creux + haut_bosse;
+L             = longueur;
+R             = r_galbe;
+w             = pas - ep_montant;                    // largeur d'un logement
+jeu_crochet   = 10;
+z_creux       = -ep_haut - (haut_crochet + jeu_crochet); // fond des logements
 z_bras_bas    = z_creux - ep_bras;
 z_dos_bas     = z_bras_bas - descente_dos;
-y_poteau      = longueur - ep_poteau;
 derniere      = premiere_encoche + (nb_cintres - 1) * pas;
+y_logements   = [for (i = [0 : nb_cintres - 1]) premiere_encoche + i * pas];
+y_bloc_ar     = premiere_encoche - w / 2;           // début du 1er logement
+y_bloc_av     = derniere + w / 2;                   // fin du dernier logement
+// Vis de l'étagère : au milieu des deux blocs pleins (arrière et avant),
+// posées par en dessous à travers un tunnel vertical.
+vis_etagere   = [(ep_dos + y_bloc_ar) / 2, (y_bloc_av + L) / 2];
 vis_fond_z    = [z_dos_bas + 13, z_dos_bas + 33];
 z_queue_haut  = z_dos_bas + 42;     // fin de la face plane des vis du fond
-r_conge       = 12;
-y_montants    = [for (i = [0 : nb_cintres - 2]) premiere_encoche + pas / 2 + i * pas];
 vis_dans_bois = long_vis_etagere - ep_sous_tete;
 
 // ---------------------------------------------------------------------
-// Vérifications : la pièce ne doit pas toucher la porte
+// Vérifications
 // ---------------------------------------------------------------------
 assert(longueur <= profondeur_placard - 10,
        str("Pièce trop longue : ", longueur, " mm pour ", profondeur_placard,
            " mm de profondeur (garder 10 mm de marge)"));
 assert(derniere + marge_veste <= profondeur_placard,
-       str("La veste du dernier cintre (encoche à ", derniere,
+       str("La veste du dernier cintre (à ", derniere,
            " mm) toucherait la porte"));
-assert(derniere + pas / 2 <= y_poteau - 2,
-       "Les encoches débordent sur le poteau avant : réduire pas ou nb_cintres");
+assert(w >= 2 * r_haut + 6, "Logements trop étroits : augmenter pas");
+assert(y_bloc_ar - ep_dos >= d_acces + 8,
+       "Pas assez de place derrière le 1er logement pour la vis arrière");
+assert(L - y_bloc_av >= d_acces + 8,
+       "Pas assez de place devant le dernier logement pour la vis avant");
 assert(vis_dans_bois <= ep_etagere - 3,
        str("Les vis (", long_vis_etagere, " mm) traverseraient l'étagère de ",
            ep_etagere, " mm : prendre des vis plus courtes"));
 assert(vis_dans_bois >= 8, "Vis trop courtes : moins de 8 mm dans l'étagère");
 assert(ep_haut - ep_sous_tete >= 4, "Lamage trop profond pour la barre haute");
-assert(!montants || pas - ep_montant >= 2 * r_conge + 4,
-       "Compartiments trop étroits entre les montants : augmenter pas");
-for (v = vis_etagere) for (m = montants ? y_montants : [])
-    assert(abs(v - m) >= ep_montant / 2 + d_acces / 2 + r_conge,
-           str("La vis à ", v, " mm tombe sur le montant à ", m, " mm"));
-assert(premiere_encoche - pas / 2 >= ep_dos + 2,
-       "La première encoche est trop près du fond");
 
 echo(str("Encombrement : ", longueur, " mm de profondeur x ",
          -z_dos_bas, " mm de haut x ", largeur, " mm de large"));
-echo(str("Encoches à : ", [for (i = [0:nb_cintres-1]) premiere_encoche + i * pas], " mm du fond"));
-echo(str("Vis étagère : ", long_vis_etagere, " mm, dont ", vis_dans_bois,
-         " mm dans le bois (étagère de ", ep_etagere, " mm)"));
+echo(str("Cintres à : ", y_logements, " mm du fond"));
+echo(str("Vis étagère à : ", vis_etagere, " mm du fond, longueur ",
+         long_vis_etagere, " mm dont ", vis_dans_bois, " mm dans le bois"));
 echo(str("Veste la plus en avant jusqu'à ~", derniere + marge_veste,
          " mm (porte à ", profondeur_placard, " mm)"));
 
 // ---------------------------------------------------------------------
 // Profil 2D (y, z)
 // ---------------------------------------------------------------------
-// Hauteur du dessus du bras en fonction de y : creux sinusoïdaux
-// Derrière la 1re encoche, le bras remonte en rampe vers le fond pour que
-// le cintre retombe toujours dans son encoche.
-function dessus_bras(y) =
-    (y < premiere_encoche - pas / 2)
-        ? z_bosse + 0.035 * pow(premiere_encoche - pas / 2 - y, 2)
-    : (y > derniere + pas / 2)
-        ? z_bosse
-        : z_creux + haut_bosse * (1 - cos(360 * (y - premiere_encoche) / pas)) / 2;
-
 // Courbe de Bézier cubique échantillonnée (sans le dernier point)
-function bez(p0, p1, p2, p3, n = 24) =
+function bez(p0, p1, p2, p3, n = 32) =
     [for (i = [0 : n - 1]) let (t = i / n)
         pow(1 - t, 3) * p0 + 3 * pow(1 - t, 2) * t * p1
         + 3 * (1 - t) * t * t * p2 + pow(t, 3) * p3];
 
-L  = longueur;
-R  = r_galbe;
-yb = L - R * 1.5;                       // fin du dessous plat du bras à l'avant
-
 // Contour extérieur : dessus plat (étagère), dos plat (fond),
 // tout le reste en courbes.
 module contour() {
+    k = 0.55;                           // ~ quart de cercle
     polygon(concat(
-        [[0, 0]],
-        // dessus plat puis avant arrondi
-        bez([L - R, 0], [L - R * 0.25, 0], [L, -R * 0.45], [L, -R]),
-        // face avant qui se galbe vers le dessous du bras
-        bez([L, -R], [L, z_bras_bas + R * 0.6], [L - R * 0.4, z_bras_bas],
-            [yb, z_bras_bas]),
-        // ventre du bras qui plonge en douceur dans la queue du dos
-        bez([yb, z_bras_bas], [L * 0.45, z_bras_bas - ventre],
-            [ep_dos, z_bras_bas - ventre], [ep_dos, z_queue_haut]),
+        [[0, 0], [L - 6, 0]],
+        bez([L - 6, 0], [L - 6 + 6 * k, 0], [L, -6 + 6 * k], [L, -6], 8),
+        // face avant, puis grand arrondi vers le dessous du bras
+        bez([L, z_bras_bas + R], [L, z_bras_bas + R * (1 - k)],
+            [L - R * (1 - k), z_bras_bas], [L - R, z_bras_bas]),
+        // ventre du bras qui plonge en une seule courbe dans la queue du dos
+        bez([L - R, z_bras_bas], [(L - R) * 0.35, z_bras_bas - ventre],
+            [ep_dos + 4, z_bras_bas - ventre - 6], [ep_dos, z_queue_haut], 48),
         // face plane des vis du fond, puis pointe arrondie
         [[ep_dos, z_queue_haut]],
         bez([ep_dos, z_dos_bas + ep_dos], [ep_dos, z_dos_bas + 1],
@@ -176,32 +156,20 @@ module contour() {
     ));
 }
 
-module fenetre() {
-    yf = L - ep_poteau;                 // face intérieure du poteau
-    pts = concat(
-        [[ep_dos, z_fenetre_h]],
-        // dessous de la barre haute qui s'enroule dans le poteau avant
-        bez([L - R - 10, z_fenetre_h], [yf - 4, z_fenetre_h],
-            [yf, z_fenetre_h - R * 0.4], [yf, -R - 4]),
-        bez([yf, -R - 4], [yf, z_bosse + 6], [yf - 2, z_bosse],
-            [derniere + pas / 2, z_bosse], 12),
-        // dessus du bras avec ses encoches
-        [for (y = [derniere + pas / 2 : -0.5 : ep_dos]) [y, dessus_bras(y)]]
-    );
-    // ouverture morphologique = congés dans les angles du cadre
-    // (les congés donnent aux montants leur forme en os)
-    offset(r = r_conge) offset(delta = -r_conge) difference() {
-        polygon(pts);
-        if (montants) for (y = y_montants)
-            translate([y - ep_montant / 2, z_bosse - 5])
-                square([ep_montant, -ep_haut - z_bosse + 10]);
+// Un logement : angles hauts arrondis, fond en demi-cercle.
+// Le crochet glisse tout seul au point bas, au centre.
+module logement(yc) {
+    hull() {
+        translate([yc, z_creux + w / 2]) circle(d = w, $fn = 96);
+        for (s = [-1, 1])
+            translate([yc + s * (w / 2 - r_haut), -ep_haut - r_haut]) circle(r = r_haut);
     }
 }
 
 module profil() {
     difference() {
         offset(r = 2) offset(delta = -2) contour();   // aucune arête vive
-        fenetre();
+        for (y = y_logements) logement(y);
     }
 }
 
@@ -235,12 +203,12 @@ module support() {
 
         // Vis à bois dans l'étagère, posées par en dessous :
         //  - trou de passage + lamage dans la barre haute (tête noyée)
-        //  - trou d'accès vertical à travers le bras pour le tournevis
+        //  - tunnel vertical à travers le bloc plein pour le tournevis
         for (y = vis_etagere) translate([0, y, 0]) {
             translate([0, 0, -ep_haut - 1]) cylinder(d = d_passage, h = ep_haut + 2);
             translate([0, 0, -ep_haut - 1]) cylinder(d = d_lamage, h = ep_haut - ep_sous_tete + 1);
-            translate([0, 0, z_bras_bas - ventre - 1])
-                cylinder(d = d_acces, h = -ep_haut - z_bras_bas + ventre + 1);
+            translate([0, 0, z_dos_bas])
+                cylinder(d = d_acces, h = -ep_haut - z_dos_bas);
         }
 
         // Vis à bois fraisées dans le fond (sous le bras, accessibles de face)
@@ -259,13 +227,13 @@ module support() {
 module crochet(y) {
     // crochet métallique simplifié posé dans l'encoche
     r = largeur / 2 + 4;
-    translate([0, y, dessus_bras(y) - r + 2])
+    translate([0, y, z_creux - r + 2])
         rotate([90, 0, 0]) {
             rotate_extrude(angle = 200) translate([r, 0]) circle(d = 4, $fn = 12);
             translate([r, 0, 0]) rotate([90, 0, 0]) cylinder(d = 4, h = 60, $fn = 12);
         }
     // épaules du cintre
-    translate([0, y, dessus_bras(y) - r - 55]) cube([300, 10, 14], center = true);
+    translate([0, y, z_creux - r - 55]) cube([300, 10, 14], center = true);
 }
 
 if (apercu) {
