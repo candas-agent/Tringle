@@ -35,10 +35,14 @@ ep_dos = 8;
 ep_poteau = 14;
 // Épaisseur du bras sous le fond des encoches (mm)
 ep_bras = 14;
-// Descente de la plaque de dos sous le bras (zone des vis du fond) (mm)
-descente_dos = 50;
-// Chanfrein de renfort entre le dos et le dessous du bras (mm)
-chanfrein = 12;
+// Descente de la queue du dos sous le bras (zone des vis du fond) (mm)
+descente_dos = 60;
+// Rayon des grands arrondis (avant du cadre, angles de la fenêtre) (mm)
+r_galbe = 30;
+// Galbe du ventre sous le bras (mm, 0 = droit)
+ventre = 4;
+// Arrondi des arêtes de la face supérieure à l'impression (mm)
+r_bord = 2.5;
 
 /* [Encoches pour cintres] */
 nb_cintres = 5;
@@ -53,7 +57,7 @@ haut_crochet = 45;
 
 /* [Fixations] */
 // Positions (Y) des vis dans l'étagère (sur les bosses / zones plates)
-vis_etagere = [28, 148, 226];
+vis_etagere = [28, 108, 188];
 // Épaisseur de l'étagère (mm) - À MESURER
 ep_etagere = 18;
 // Longueur des vis de l'étagère (mm)
@@ -86,8 +90,9 @@ z_bras_bas    = z_creux - ep_bras;
 z_dos_bas     = z_bras_bas - descente_dos;
 y_poteau      = longueur - ep_poteau;
 derniere      = premiere_encoche + (nb_cintres - 1) * pas;
-vis_fond_z    = [z_dos_bas + 12, z_bras_bas - chanfrein - 6];
-r_conge       = 6;
+vis_fond_z    = [z_dos_bas + 13, z_dos_bas + 33];
+z_queue_haut  = z_dos_bas + 42;     // fin de la face plane des vis du fond
+r_conge       = 10;
 vis_dans_bois = long_vis_etagere - ep_sous_tete;
 
 // ---------------------------------------------------------------------
@@ -126,28 +131,56 @@ function dessus_bras(y) =
         ? z_bosse
         : z_creux + haut_bosse * (1 - cos(360 * (y - premiere_encoche) / pas)) / 2;
 
+// Courbe de Bézier cubique échantillonnée (sans le dernier point)
+function bez(p0, p1, p2, p3, n = 24) =
+    [for (i = [0 : n - 1]) let (t = i / n)
+        pow(1 - t, 3) * p0 + 3 * pow(1 - t, 2) * t * p1
+        + 3 * (1 - t) * t * t * p2 + pow(t, 3) * p3];
+
+L  = longueur;
+R  = r_galbe;
+yb = L - R * 1.5;                       // fin du dessous plat du bras à l'avant
+
+// Contour extérieur : dessus plat (étagère), dos plat (fond),
+// tout le reste en courbes.
 module contour() {
-    polygon([
-        [0, 0],
-        [longueur, 0],
-        [longueur, z_bras_bas],
-        [ep_dos + chanfrein, z_bras_bas],
-        [ep_dos, z_bras_bas - chanfrein],
-        [ep_dos, z_dos_bas],
-        [0, z_dos_bas],
-    ]);
+    polygon(concat(
+        [[0, 0]],
+        // dessus plat puis avant arrondi
+        bez([L - R, 0], [L - R * 0.25, 0], [L, -R * 0.45], [L, -R]),
+        // face avant qui se galbe vers le dessous du bras
+        bez([L, -R], [L, z_bras_bas + R * 0.6], [L - R * 0.4, z_bras_bas],
+            [yb, z_bras_bas]),
+        // ventre du bras qui plonge en douceur dans la queue du dos
+        bez([yb, z_bras_bas], [L * 0.45, z_bras_bas - ventre],
+            [ep_dos, z_bras_bas - ventre], [ep_dos, z_queue_haut]),
+        // face plane des vis du fond, puis pointe arrondie
+        [[ep_dos, z_queue_haut]],
+        bez([ep_dos, z_dos_bas + ep_dos], [ep_dos, z_dos_bas + 1],
+            [ep_dos * 0.5, z_dos_bas], [0, z_dos_bas], 10),
+        [[0, z_dos_bas]]
+    ));
 }
 
 module fenetre() {
-    pts_bras = [for (y = [y_poteau : -0.5 : ep_dos]) [y, dessus_bras(y)]];
+    yf = L - ep_poteau;                 // face intérieure du poteau
+    pts = concat(
+        [[ep_dos, z_fenetre_h]],
+        // dessous de la barre haute qui s'enroule dans le poteau avant
+        bez([L - R - 10, z_fenetre_h], [yf - 4, z_fenetre_h],
+            [yf, z_fenetre_h - R * 0.4], [yf, -R - 4]),
+        bez([yf, -R - 4], [yf, z_bosse + 6], [yf - 2, z_bosse],
+            [derniere + pas / 2, z_bosse], 12),
+        // dessus du bras avec ses encoches
+        [for (y = [derniere + pas / 2 : -0.5 : ep_dos]) [y, dessus_bras(y)]]
+    );
     // ouverture morphologique = congés dans les angles du cadre
-    offset(r = r_conge) offset(delta = -r_conge)
-        polygon(concat([[ep_dos, z_fenetre_h], [y_poteau, z_fenetre_h]], pts_bras));
+    offset(r = r_conge) offset(delta = -r_conge) polygon(pts);
 }
 
 module profil() {
     difference() {
-        offset(r = 2) offset(delta = -2) contour();   // arrondit les arêtes vives
+        offset(r = 2) offset(delta = -2) contour();   // aucune arête vive
         fenetre();
     }
 }
@@ -156,10 +189,29 @@ module profil() {
 // Pièce 3D
 // ---------------------------------------------------------------------
 // 2D (a, b) extrudé de e  ->  X = e, Y = a, Z = b
+// Extrusion du profil avec arêtes adoucies :
+//  - face +X (dessus à l'impression) : quart de rond
+//  - face -X (sur le plateau) : chanfrein à 45°, imprimable sans support
+module extrusion_adoucie(n = 5) {
+    e = largeur / 2;
+    translate([0, 0, -e + r_bord]) linear_extrude(largeur - 2 * r_bord) profil();
+    for (i = [0 : n - 1]) {
+        // dessus : quart de rond
+        a0 = 90 * i / n;  a1 = 90 * (i + 1) / n;
+        translate([0, 0, e - r_bord + r_bord * sin(a0)])
+            linear_extrude(r_bord * (sin(a1) - sin(a0)) + 0.01)
+                offset(delta = -r_bord * (1 - cos(a1))) profil();
+        // dessous : chanfrein 45°
+        h0 = r_bord * i / n;
+        translate([0, 0, -e + h0])
+            linear_extrude(r_bord / n + 0.01)
+                offset(delta = -(r_bord - h0)) profil();
+    }
+}
+
 module support() {
     difference() {
-        rotate([90, 0, 90])
-            linear_extrude(height = largeur, center = true) profil();
+        rotate([90, 0, 90]) extrusion_adoucie();
 
         // Vis à bois dans l'étagère, posées par en dessous :
         //  - trou de passage + lamage dans la barre haute (tête noyée)
@@ -167,7 +219,8 @@ module support() {
         for (y = vis_etagere) translate([0, y, 0]) {
             translate([0, 0, -ep_haut - 1]) cylinder(d = d_passage, h = ep_haut + 2);
             translate([0, 0, -ep_haut - 1]) cylinder(d = d_lamage, h = ep_haut - ep_sous_tete + 1);
-            translate([0, 0, z_bras_bas - 1]) cylinder(d = d_acces, h = z_bosse - z_bras_bas + 2);
+            translate([0, 0, z_bras_bas - ventre - 1])
+                cylinder(d = d_acces, h = -ep_haut - z_bras_bas + ventre + 1);
         }
 
         // Vis à bois fraisées dans le fond (sous le bras, accessibles de face)

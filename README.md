@@ -13,6 +13,18 @@ Le bras porte **5 encoches** séparées par des bosses de 9 mm. Chaque cintre re
 |---|---|
 | ![pièce](images/piece.png) | ![profil](images/profil.png) |
 
+## Forme
+
+Seules les deux faces d'appui sont planes : le dessus, contre l'étagère, et le dos, contre le fond du placard. Tout le reste est galbé :
+
+* l'avant du cadre s'enroule en arc, de la barre haute jusqu'au bras ;
+* le dessous du bras forme un léger ventre, plus épais près du fond, là où l'effort est le plus grand ;
+* ce ventre plonge en douceur dans une queue qui porte les vis du fond ;
+* la fenêtre a de grands congés ;
+* les arêtes sont adoucies : quart de rond sur le dessus à l'impression, chanfrein à 45° côté plateau pour éviter les supports.
+
+Pour régler la forme : `r_galbe` (rayon des grands arrondis), `ventre` (galbe sous le bras) et `r_bord` (arrondi des arêtes).
+
 ## Pourquoi un cadre fermé
 
 Les supports d'origine sont des porte-à-faux : toute la charge fait levier sur deux petites vis plantées dans le fond, qui est souvent un panneau mince. Ici, le bras est tenu **aux deux bouts**, par le dos d'un côté et par le poteau avant de l'autre. Le poteau avant est accroché à l'étagère. Le couple créé par les vestes est donc repris surtout par la vis avant de l'étagère, qui travaille en traction, et par l'appui de la barre haute contre l'étagère.
@@ -26,7 +38,7 @@ Ordre de grandeur pour 5 vestes de 2 kg : environ 15 N·m au niveau du dos, soit
 * Profondeur de la pièce : **245 mm**.
 * Encoches à 48, 88, 128, 168 et 208 mm du fond.
 * La veste la plus en avant dépasse d'environ 60 mm devant son crochet, soit à peu près **268 mm**. On reste sous les **300 mm** de la porte.
-* Hauteur : 136 mm. Largeur : 20 mm.
+* Hauteur : 146 mm. Largeur : 20 mm.
 
 Le fichier contient des `assert` : si vous changez un paramètre et que la pièce ou la dernière veste risque de toucher la porte, **le rendu s'arrête avec un message**. Pensez à mesurer la profondeur réelle entre le fond et la porte fermée, puis à régler `profondeur_placard`.
 
@@ -41,7 +53,8 @@ Le fichier contient des `assert` : si vous changez un paramètre et que la pièc
 | `haut_bosse` | 9 | hauteur des bosses entre encoches |
 | `haut_crochet` | 45 | hauteur de vos crochets (à mesurer) |
 | `largeur` | 20 | largeur du bras, qui doit passer dans le crochet |
-| `vis_etagere` | [28, 148, 226] | position des vis de l'étagère depuis le fond |
+| `r_galbe`, `ventre`, `r_bord` | 30, 4, 2,5 | arrondis et galbes |
+| `vis_etagere` | [28, 108, 188] | position des vis de l'étagère depuis le fond |
 | `ep_etagere` | 18 | épaisseur de l'étagère (**à mesurer**) |
 | `long_vis_etagere` | 16 | longueur des vis de l'étagère |
 
