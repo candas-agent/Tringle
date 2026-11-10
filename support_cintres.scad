@@ -17,8 +17,11 @@
 // =====================================================================
 
 /* [Placard] */
-// Profondeur libre entre le fond du placard et la porte fermée (mm)
-profondeur_placard = 300;
+// Profondeur de l'étagère du haut, depuis le fond du placard (mm)
+profondeur_etagere = 300;
+// Espace entre le bord avant de l'étagère et la porte fermée (mm)
+// (0 si inconnu : on reste alors sous l'étagère, par sécurité)
+ecart_porte = 0;
 // Épaisseur de veste qui dépasse devant le crochet le plus en avant (mm)
 marge_veste = 60;
 
@@ -101,10 +104,10 @@ vis_dans_bois = long_vis_etagere - ep_sous_tete;
 // ---------------------------------------------------------------------
 // Vérifications
 // ---------------------------------------------------------------------
-assert(longueur <= profondeur_placard - 10,
-       str("Pièce trop longue : ", longueur, " mm pour ", profondeur_placard,
-           " mm de profondeur (garder 10 mm de marge)"));
-assert(derniere + marge_veste <= profondeur_placard,
+assert(longueur <= profondeur_etagere - 10,
+       str("La pièce (", longueur, " mm) dépasserait de l'étagère de ",
+           profondeur_etagere, " mm (garder 10 mm de marge)"));
+assert(derniere + marge_veste <= profondeur_etagere + ecart_porte,
        str("La veste du dernier cintre (à ", derniere,
            " mm) toucherait la porte"));
 assert(w >= 2 * r_haut + 6, "Logements trop étroits : augmenter pas");
@@ -123,8 +126,11 @@ echo(str("Encombrement : ", longueur, " mm de profondeur x ",
 echo(str("Cintres à : ", y_logements, " mm du fond"));
 echo(str("Vis étagère à : ", vis_etagere, " mm du fond, longueur ",
          long_vis_etagere, " mm dont ", vis_dans_bois, " mm dans le bois"));
+echo(str("Pièce : ", longueur, " mm, soit ", profondeur_etagere - longueur,
+         " mm en retrait du bord de l'étagère"));
 echo(str("Veste la plus en avant jusqu'à ~", derniere + marge_veste,
-         " mm (porte à ", profondeur_placard, " mm)"));
+         " mm (bord de l'étagère à ", profondeur_etagere, " mm, porte à ",
+         profondeur_etagere + ecart_porte, " mm ou plus)"));
 
 // ---------------------------------------------------------------------
 // Profil 2D (y, z)
@@ -238,10 +244,10 @@ module crochet(y) {
 
 if (apercu) {
     color("orange") support();
-    color("white", 0.6) translate([-200, 0, 0]) cube([400, profondeur_placard - 20, 18]);
+    color("white", 0.6) translate([-200, 0, 0]) cube([400, profondeur_etagere, 18]);
     color("tan", 0.6) translate([-200, -3, z_dos_bas - 60]) cube([400, 3, 78 - z_dos_bas]);
     // trait rouge = position de la porte fermée
-    color("red") translate([-200, profondeur_placard, -2]) cube([400, 2, 4]);
+    color("red") translate([-200, profondeur_etagere + ecart_porte, -2]) cube([400, 2, 4]);
     color("silver") for (i = [0:nb_cintres-1]) crochet(premiere_encoche + i * pas);
 } else {
     support();

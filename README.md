@@ -36,16 +36,18 @@ Ordre de grandeur pour 5 vestes de 2 kg : environ 15 N·m au niveau du dos, soit
 
 * Profondeur de la pièce : **245 mm**.
 * Cintres à 48, 88, 128, 168 et 208 mm du fond.
-* La veste la plus en avant dépasse d'environ 60 mm devant son crochet, soit à peu près **268 mm**. On reste sous les **300 mm** de la porte.
+* La pièce reste **55 mm en retrait** du bord avant de l'étagère de **300 mm** : elle ne dépasse jamais.
+* La veste la plus en avant dépasse d'environ 60 mm devant son crochet, soit à peu près **268 mm**. Elle reste donc elle aussi sous l'étagère, avec 32 mm de marge, avant même de compter l'espace jusqu'à la porte.
 * Hauteur : 151 mm. Largeur : 20 mm.
 
-Le fichier contient des `assert` : si vous changez un paramètre et que la pièce ou la dernière veste risque de toucher la porte, **le rendu s'arrête avec un message**. Pensez à mesurer la profondeur réelle entre le fond et la porte fermée, puis à régler `profondeur_placard`.
+Le fichier contient des `assert` : si vous changez un paramètre et que la pièce dépasse de l'étagère, ou que la dernière veste risque de toucher la porte, **le rendu s'arrête avec un message**. Si vous connaissez l'espace entre le bord de l'étagère et la porte fermée, indiquez-le dans `ecart_porte` (0 par défaut, par sécurité).
 
 ## Paramètres principaux (`support_cintres.scad`)
 
 | Paramètre | Défaut | Rôle |
 |---|---|---|
-| `profondeur_placard` | 300 | fond → porte fermée |
+| `profondeur_etagere` | 300 | profondeur de l'étagère du haut |
+| `ecart_porte` | 0 | bord de l'étagère → porte fermée (0 si inconnu) |
 | `marge_veste` | 60 | épaisseur de veste devant le dernier crochet |
 | `longueur` | 245 | profondeur de la pièce |
 | `nb_cintres`, `pas` | 5, 40 | nombre de logements et entraxe |
@@ -56,7 +58,7 @@ Le fichier contient des `assert` : si vous changez un paramètre et que la pièc
 | `ep_etagere` | 18 | épaisseur de l'étagère (**à mesurer**) |
 | `long_vis_etagere` | 16 | longueur des vis de l'étagère |
 
-Avec `apercu = true`, le fichier affiche l'étagère, le fond, la porte (trait rouge) et les cintres. **N'exportez pas le STL avec cette option active.**
+Avec `apercu = true`, le fichier affiche l'étagère, le fond, la porte (trait rouge, au bord de l'étagère si `ecart_porte = 0`) et les cintres. **N'exportez pas le STL avec cette option active.**
 
 ## Impression
 
