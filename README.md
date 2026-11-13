@@ -4,8 +4,7 @@ Remplace les deux supports de cintres d'origine, jugés fragiles. Le nouveau sup
 
 Il est fixé en trois points :
 
-* **cheville du bas** (sous le bras) : une vis fraisée, vissée de face ;
-* **cheville du haut** (90 mm au-dessus) : la tête de vis s'engage dans une **rainure en T** au dos du support. Les montants empêchent d'y passer un tournevis de face, d'où cette rainure ;
+* **les deux chevilles du mur** (l'une au-dessus de l'autre, 90 mm d'écart) : deux vis fraisées, vissées de face dans une **patte latérale**. Cette plaque verticale, plaquée contre le mur sur le côté du support, porte les deux trous. Les vis sont ainsi à côté du support : le tournevis ne rencontre aucun montant ;
 * **sous l'étagère, à l'avant** : une vis posée par en dessous. Rien ne traverse l'étagère.
 
 ![aperçu](images/apercu.png)
@@ -29,7 +28,7 @@ Pour régler la forme : `r_galbe` (arrondi avant-bas), `ventre` (galbe sous le b
 
 Les supports d'origine sont des porte-à-faux : toute la charge fait levier sur deux petites vis. Ici :
 
-* **à l'arrière**, la vis du bas tient le support en hauteur et le plaque contre le mur. La vis du haut, dans sa rainure, empêche le haut de s'écarter du mur ;
+* **à l'arrière**, les deux vis de la patte, dans les chevilles du mur, tiennent le support en hauteur et le plaquent contre le mur ;
 * **à l'avant**, la vis de l'étagère travaille en traction. C'est elle qui empêche l'avant de basculer vers le bas ;
 * le **bas de la queue** appuie contre le mur, ce qui complète le couple ;
 * le bras est relié à la barre haute tous les 40 mm par les montants, donc toute la pièce travaille comme un seul bloc.
@@ -43,9 +42,9 @@ Les crochets s'accrochent **par le côté**, dans leur logement. Chaque logement
 * Profondeur du support : **245 mm**. Il reste **55 mm en retrait** du bord avant de l'étagère de **300 mm** : il ne dépasse jamais.
 * Cintres à 48, 88, 128, 168 et 208 mm du mur.
 * La veste la plus en avant dépasse d'environ 60 mm devant son crochet, soit à peu près **268 mm**. Elle reste elle aussi sous l'étagère, avant même de compter l'espace jusqu'à la porte.
-* 130 mm de haut (plus si la cheville du bas est plus basse : la queue s'allonge), 16 mm de large.
+* 130 mm de haut (plus si la cheville du bas est plus basse : la queue s'allonge). 16 mm de large pour le support, 38 mm avec la patte.
 
-Le fichier contient des `assert` : si un réglage fait dépasser la pièce de l'étagère, toucher la porte par la dernière veste, ressortir la vis sur le dessus de l'étagère, ou placer la vis du bas là où le bras bloque le tournevis, **le rendu s'arrête avec un message**.
+Le fichier contient des `assert` : si un réglage fait dépasser la pièce de l'étagère, toucher la porte par la dernière veste, ressortir la vis sur le dessus de l'étagère, ou placer les chevilles trop près de l'étagère, **le rendu s'arrête avec un message**.
 
 ## Paramètres principaux (`support_cintres.scad`)
 
@@ -53,8 +52,9 @@ Le fichier contient des `assert` : si un réglage fait dépasser la pièce de l'
 |---|---|---|
 | `z_cheville_haute` | 20 | distance entre le dessous de l'étagère et la cheville du haut (**à mesurer**) |
 | `entraxe_chevilles` | 90 | écart vertical entre les deux chevilles |
-| `d_vis_cheville`, `d_tete_cheville` | 5, 10 | passage et tête fraisée de la vis du bas |
-| `rainure_haut` | true | rainure en T pour la vis du haut |
+| `d_vis_cheville`, `d_tete_cheville` | 5, 10 | passage et tête fraisée des vis des chevilles |
+| `larg_patte` | 22 | largeur de la patte (trous à 19 mm de l'axe du support) |
+| `cote_patte` | `"gauche"` | côté de la patte, vu de face : `"gauche"` ou `"droite"` |
 | `profondeur_etagere` | 300 | profondeur de l'étagère du haut |
 | `ecart_porte` | 0 | bord de l'étagère → porte fermée (0 si inconnu) |
 | `marge_veste` | 60 | épaisseur de veste devant le dernier crochet |
@@ -72,29 +72,28 @@ Avec `apercu = true`, le fichier affiche l'étagère, le mur, la porte (trait ro
 ## Impression
 
 * **PETG de préférence, PLA possible.** Sous une charge permanente, le PLA se déforme lentement (fluage), surtout au chaud. Ici, les efforts dans la pièce restent de l'ordre de 1 à 3 MPa, très loin de ce que le PLA supporte. Dans un placard à température ambiante, loin d'un radiateur et du soleil, du PLA devrait donc tenir. Le PETG garde simplement plus de marge.
-* Imprimez le support **couché sur le côté**, avec la grande face plate sur le plateau. Les couches suivent alors le cadre, ce qui donne l'orientation la plus solide. Aucun support d'impression n'est nécessaire. Encombrement : 245 × 130 mm sur le plateau, 16 mm de haut. Il faut un plateau d'au moins 250 mm dans un sens (Bambu P1S/A1/X1, Prusa MK4, etc.).
+* Imprimez le support **couché sur le côté**, avec la grande face plate sur le plateau. Les couches suivent alors le cadre, ce qui donne l'orientation la plus solide. Aucun support d'impression n'est nécessaire. La patte se retrouve alors sur le dessus et monte droit depuis la pièce. Encombrement : 245 × 130 mm sur le plateau, 38 mm de haut avec la patte. Il faut un plateau d'au moins 250 mm dans un sens (Bambu P1S/A1/X1, Prusa MK4, etc.).
 * 4 périmètres, 4 à 5 couches dessus et dessous, remplissage gyroïde de 25 % : **environ 125 g** (estimation à ±20 %, votre logiciel de découpe donnera le chiffre exact).
 
 ## Montage
 
 ### Matériel
 
-* **Chevilles (2 vis) :** des vis adaptées à vos chevilles, de Ø5 maximum.
-  * **Vis du bas :** tête fraisée de Ø10 maximum. Longueur = 8 mm de plastique + la profondeur de la cheville (par exemple 5 × 40 pour une cheville de 30 mm).
-  * **Vis du haut :** tête plate dessous (tête cylindrique, bombée ou à rondelle) de Ø10 maximum et de 4 mm d'épaisseur maximum. Elle ne traverse pas le support, donc sa longueur = la profondeur de la cheville + 3 mm.
+* **Chevilles (2 vis identiques) :** des vis adaptées à vos chevilles, de Ø5 maximum, à **tête fraisée de Ø10 maximum**. Longueur = 8 mm de patte + la profondeur de la cheville : par exemple 5 × 40 pour une cheville de 30 mm. Le plus simple est de reprendre les vis d'origine en ajoutant 8 mm.
 * **Étagère (1 vis) : vis à bois / aggloméré Ø4 × 16 mm**, avec une tête de Ø8 maximum (elle doit passer dans le tunnel Ø10 et se loger dans le lamage Ø9). Une tête cylindrique ou bombée, plate dessous, appuie le mieux. Une tête fraisée convient aussi. Préférez une empreinte **Torx (TX20)** : avec un embout aimanté, la vis tient sur l'embout pendant qu'on la monte dans le tunnel. Calcul de la longueur : 5 mm de plastique + 11 mm dans le bois. Si l'étagère fait moins de 18 mm, prenez une vis plus courte (le fichier vérifie avec `ep_etagere`).
 
 ### Avant d'imprimer
 
-Mesurez **la distance entre le dessous de l'étagère et le centre de la cheville du haut**, et indiquez-la dans `z_cheville_haute`. La rainure et le trou du bas sont placés d'après cette mesure (le trou du bas 90 mm plus bas). Si la cheville du bas tombe trop haut, sous le bras, le fichier refuse de générer la pièce.
+Mesurez **la distance entre le dessous de l'étagère et le centre de la cheville du haut**, et indiquez-la dans `z_cheville_haute`. Les deux trous de la patte sont placés d'après cette mesure (le trou du bas 90 mm plus bas).
+
+Choisissez aussi **le côté de la patte** (`cote_patte`). Le support se pose à côté des chevilles : son axe est à 19 mm de la ligne des chevilles, du côté opposé à la patte. Pour obtenir l'autre côté, il suffit de changer ce réglage ou d'appliquer « Miroir » à la pièce dans le logiciel de découpe.
 
 ### Étapes
 
-1. Vissez la vis du haut dans sa cheville **en laissant 3,5 mm entre le mur et le dessous de la tête** (une cale de 3 mm, par exemple une pièce de monnaie épaisse, aide à régler).
-2. Présentez le support sous l'étagère, décalé sur le côté, puis glissez-le latéralement pour engager la tête de vis dans la rainure en T, au dos.
-3. Vissez la vis du bas dans sa cheville, de face, sous le bras. Le support est alors plaqué contre le mur.
-4. Pré-percez l'étagère à Ø2,5 sur 10 mm de profondeur, à travers le trou de la barre haute, en passant par le tunnel. Pour ne pas percer trop loin, mettez un bout de scotch sur le foret comme repère.
-5. Vissez la vis de l'étagère par en dessous, à travers le tunnel.
+1. Présentez le support : plaqué contre le mur, collé sous l'étagère, les trous de la patte en face des chevilles.
+2. Vissez les deux vis de la patte dans les chevilles, de face. Le tournevis passe à côté du support.
+3. Pré-percez l'étagère à Ø2,5 sur 10 mm de profondeur, à travers le trou de la barre haute, en passant par le tunnel. Pour ne pas percer trop loin, mettez un bout de scotch sur le foret comme repère.
+4. Vissez la vis de l'étagère par en dessous, à travers le tunnel.
 
 ### La vis de l'étagère
 

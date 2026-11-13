@@ -77,17 +77,13 @@ d_passage = 4.5;
 z_cheville_haute = 20;
 // Entraxe vertical des deux chevilles (mm)
 entraxe_chevilles = 90;
-// Vis du bas : diamètre de passage et de tête fraisée (mm)
+// Vis des chevilles : diamètre de passage et de tête fraisée (mm)
 d_vis_cheville = 5;
 d_tete_cheville = 10;
-// Vis du haut accrochée dans une rainure en T au dos du support
-rainure_haut = true;
-// Rainure : largeur pour la tige, hauteur et épaisseur pour la tête (mm)
-rainure_tige = 5.6;
-rainure_tete = 11;
-rainure_ep_tete = 4.5;
-// Épaisseur de la lèvre entre le mur et la tête de vis (mm)
-levre = 3;
+// Patte latérale contre le mur qui porte les deux trous : largeur (mm)
+larg_patte = 22;
+// Côté de la patte, vu de face : "gauche" ou "droite"
+cote_patte = "gauche"; // [gauche, droite]
 
 /* [Aperçu] */
 // Afficher étagère, mur, porte et cintres (ne PAS exporter avec)
@@ -104,10 +100,12 @@ w             = pas - ep_montant;                    // largeur d'un logement
 jeu_crochet   = 10;
 z_creux       = -ep_haut - (haut_crochet + jeu_crochet); // fond des logements
 z_bras_bas    = z_creux - ep_bras;
-z_ch_haut     = -z_cheville_haute;                 // vis du haut (rainure)
-z_ch_bas      = z_ch_haut - entraxe_chevilles;      // vis du bas (vissée de face)
+z_ch_haut     = -z_cheville_haute;                 // vis du haut
+z_ch_bas      = z_ch_haut - entraxe_chevilles;      // vis du bas
 z_dos_bas     = min(z_bras_bas - descente_dos, z_ch_bas - 14);
-y_rainure     = levre + rainure_ep_tete;            // fond de la rainure
+x_patte       = largeur / 2 + larg_patte / 2;       // axe des trous de la patte
+z_patte_haut  = min(-1, z_ch_haut + 12);
+z_patte_bas   = z_ch_bas - 12;
 derniere      = premiere_encoche + (nb_cintres - 1) * pas;
 y_logements   = [for (i = [0 : nb_cintres - 1]) premiere_encoche + i * pas];
 y_bloc_ar     = premiere_encoche - w / 2;           // début du 1er logement
@@ -116,7 +114,7 @@ y_bloc_av     = derniere + w / 2;                   // fin du dernier logement
 // support), posée par en dessous à travers un tunnel vertical.
 // L'arrière est tenu par les deux chevilles du mur.
 vis_etagere   = [(y_bloc_av + L) / 2];
-z_queue_haut  = max(z_dos_bas + 34, z_ch_bas + 10);   // fin de la face plane     // fin de la face plane des vis du fond
+z_queue_haut  = z_dos_bas + 34;     // fin de la face plane du dos
 vis_dans_bois = long_vis_etagere - ep_sous_tete;
 
 // ---------------------------------------------------------------------
@@ -129,15 +127,14 @@ assert(derniere + marge_veste <= profondeur_etagere + ecart_porte,
        str("La veste du dernier cintre (à ", derniere,
            " mm) toucherait la porte"));
 assert(w >= 2 * r_haut + 6, "Logements trop étroits : augmenter pas");
-assert(y_bloc_ar - y_rainure >= 6,
-       "Pas assez de matière entre la rainure et le 1er logement");
 assert(L - y_bloc_av >= d_acces + 8,
        "Pas assez de place devant le dernier logement pour la vis avant");
-assert(!rainure_haut || z_cheville_haute - rainure_tete / 2 >= 3,
-       "Cheville du haut trop près de l'étagère pour la rainure");
-assert(z_ch_bas + d_tete_cheville / 2 + 6 <= z_bras_bas - ventre,
-       str("La vis du bas (", -z_ch_bas, " mm sous l'étagère) est trop haute : ",
-           "le bras bloque le tournevis"));
+assert(z_cheville_haute - d_tete_cheville / 2 >= 2,
+       "Cheville du haut trop près de l'étagère");
+assert(larg_patte - d_tete_cheville >= 6,
+       "Patte trop étroite pour la tête des vis des chevilles");
+assert(x_patte - d_tete_cheville / 2 >= largeur / 2 + 3,
+       "Tête de vis trop près du support : le tournevis frotte");
 assert(entraxe_chevilles / 2 - d_tete_cheville / 2 >= largeur / 2 + 2,
        "Chevilles trop rapprochées : le tournevis bute sur le support");
 assert(vis_dans_bois <= ep_etagere - 3,
@@ -147,12 +144,14 @@ assert(vis_dans_bois >= 8, "Vis trop courtes : moins de 8 mm dans l'étagère");
 assert(ep_haut - ep_sous_tete >= 4, "Lamage trop profond pour la barre haute");
 
 echo(str("Encombrement : ", longueur, " mm de profondeur x ",
-         -z_dos_bas, " mm de haut x ", largeur, " mm de large"));
+         -z_dos_bas, " mm de haut x ", largeur, " mm de large (",
+         largeur + larg_patte, " mm avec la patte)"));
 echo(str("Cintres à : ", y_logements, " mm du fond"));
 echo(str("Vis étagère à : ", vis_etagere[0], " mm du fond, longueur ",
          long_vis_etagere, " mm dont ", vis_dans_bois, " mm dans le bois"));
-echo(str("Chevilles à ", z_cheville_haute, " mm (haut, rainure) et ",
-         z_cheville_haute + entraxe_chevilles, " mm (bas, vis de face) sous l'étagère"));
+echo(str("Chevilles à ", z_cheville_haute, " et ", z_cheville_haute + entraxe_chevilles,
+         " mm sous l'étagère, à ", x_patte, " mm à ", cote_patte,
+         " de l'axe du support"));
 echo(str("Pièce : ", longueur, " mm, soit ", profondeur_etagere - longueur,
          " mm en retrait du bord de l'étagère"));
 echo(str("Veste la plus en avant jusqu'à ~", derniere + marge_veste,
@@ -199,20 +198,9 @@ module logement(yc) {
     }
 }
 
-// Renfort au droit de la rainure : garantit assez de matière autour d'elle,
-// même si la cheville du haut tombe dans la queue (sous le bras).
-module renfort_rainure() {
-    if (rainure_haut) translate([0, z_ch_haut - rainure_tete / 2 - 6])
-        offset(r = 4) offset(delta = -4)
-            square([y_rainure + 6, rainure_tete + 12]);
-}
-
 module profil() {
     difference() {
-        offset(r = 2) offset(delta = -2) union() {   // aucune arête vive
-            contour();
-            renfort_rainure();
-        }
+        offset(r = 2) offset(delta = -2) contour();   // aucune arête vive
         for (y = y_logements) logement(y);
     }
 }
@@ -241,9 +229,31 @@ module extrusion_adoucie(n = 5) {
     }
 }
 
-module support() {
+// Patte latérale : plaque verticale contre le mur, sur le côté +X du
+// support (dessus à l'impression : elle monte depuis la pièce, sans
+// porte-à-faux). Les deux vis des chevilles y passent, à côté du support :
+// le tournevis ne rencontre aucun montant.
+module patte() {
+    x0 = largeur / 2 - r_bord - 0.5;               // ancrée dans la pièce
+    translate([0, ep_dos, 0]) rotate([90, 0, 0])
+        linear_extrude(ep_dos)
+            offset(r = 6) offset(delta = -6)
+                translate([x0, z_patte_bas]) square([largeur / 2 + larg_patte - x0, z_patte_haut - z_patte_bas]);
+    // congé entre la patte et le flanc du support, côté avant
+    translate([largeur / 2, ep_dos, z_patte_bas + 6])
+        linear_extrude(z_patte_haut - z_patte_bas - 12)
+            difference() {
+                square([4, 4]);
+                translate([4, 4]) circle(r = 4);
+            }
+}
+
+module support_brut() {
     difference() {
-        rotate([90, 0, 90]) extrusion_adoucie();
+        union() {
+            rotate([90, 0, 90]) extrusion_adoucie();
+            patte();
+        }
 
         // Vis à bois dans l'étagère, posées par en dessous :
         //  - trou de passage + lamage dans la barre haute (tête noyée)
@@ -255,23 +265,24 @@ module support() {
                 cylinder(d = d_acces, h = -ep_haut - z_dos_bas);
         }
 
-        // Rainure en T pour la vis du haut, traversante de gauche à droite :
-        // on glisse le support de côté pour engager la tête de vis.
-        if (rainure_haut) translate([-largeur, 0, z_ch_haut]) {
-            translate([0, -1, -rainure_tige / 2]) cube([2 * largeur, levre + 1.01, rainure_tige]);
-            translate([0, levre, -rainure_tete / 2]) cube([2 * largeur, rainure_ep_tete, rainure_tete]);
-        }
-
-        // Vis du bas dans la cheville, tête fraisée, vissée de face
-        translate([0, 0, z_ch_bas]) rotate([-90, 0, 0]) {
+        // Vis des chevilles dans la patte, têtes fraisées, vissées de face
+        for (z = [z_ch_haut, z_ch_bas]) translate([x_patte, 0, z]) rotate([-90, 0, 0]) {
             k = (d_tete_cheville - d_vis_cheville) / 2;
             translate([0, 0, -1]) cylinder(d = d_vis_cheville, h = ep_dos + 2);
             translate([0, 0, ep_dos - k])
                 cylinder(d1 = d_vis_cheville, d2 = d_tete_cheville, h = k + 0.01);
-            translate([0, 0, ep_dos]) cylinder(d = d_tete_cheville, h = 40);
         }
     }
 }
+
+// Patte à gauche (vue de face) = côté +X ; à droite = pièce en miroir.
+module support() {
+    if (cote_patte == "droite") mirror([1, 0, 0]) support_brut();
+    else support_brut();
+}
+
+// position X des chevilles dans le repère de la pièce
+x_chevilles = cote_patte == "droite" ? -x_patte : x_patte;
 
 // ---------------------------------------------------------------------
 // Aperçu de l'environnement
@@ -291,8 +302,8 @@ module crochet(y) {
 if (apercu) {
     color("orange") support();
     // vis des chevilles
-    color("dimgray") for (z = [z_ch_haut, z_ch_bas]) translate([0, -3, z])
-        rotate([-90, 0, 0]) cylinder(d = 5, h = 6 + levre);
+    color("dimgray") for (z = [z_ch_haut, z_ch_bas]) translate([x_chevilles, -3, z])
+        rotate([-90, 0, 0]) cylinder(d = 5, h = 3 + ep_dos);
     color("white", 0.6) translate([-200, 0, 0]) cube([400, profondeur_etagere, 18]);
     color("tan", 0.6) translate([-200, -3, z_dos_bas - 60]) cube([400, 3, 78 - z_dos_bas]);
     // trait rouge = position de la porte fermée
