@@ -73,7 +73,7 @@ Avec `apercu = true`, le fichier affiche l'étagère, le mur, la porte (trait ro
 
 * **PETG de préférence, PLA possible.** Sous une charge permanente, le PLA se déforme lentement (fluage), surtout au chaud. Ici, les efforts dans la pièce restent de l'ordre de 1 à 3 MPa, très loin de ce que le PLA supporte. Dans un placard à température ambiante, loin d'un radiateur et du soleil, du PLA devrait donc tenir. Le PETG garde simplement plus de marge.
 * Imprimez le support **couché sur le côté**, avec la grande face plate sur le plateau. Les couches suivent alors le cadre, ce qui donne l'orientation la plus solide. Aucun support d'impression n'est nécessaire. La patte se retrouve alors sur le dessus et monte droit depuis la pièce. Encombrement : 245 × 130 mm sur le plateau, 38 mm de haut avec la patte. Il faut un plateau d'au moins 250 mm dans un sens (Bambu P1S/A1/X1, Prusa MK4, etc.).
-* 4 périmètres, 4 à 5 couches dessus et dessous, remplissage gyroïde de 25 % : **environ 125 g** (estimation à ±20 %, votre logiciel de découpe donnera le chiffre exact).
+* 4 périmètres, 4 à 5 couches dessus et dessous, remplissage gyroïde de 25 % : **environ 140 g** (estimation à ±20 %, votre logiciel de découpe donnera le chiffre exact).
 
 ## Montage
 
