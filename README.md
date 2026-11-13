@@ -69,7 +69,7 @@ Deux fichiers sont fournis : `support_cintres.stl` et `platine.stl`. Si vous cha
 * **Support :** couché sur le côté, la grande face plate sur le plateau (245 × 115 mm, 16 mm de haut). Il faut un plateau d'au moins 250 mm dans un sens (Bambu P1S/A1/X1, Prusa MK4, etc.).
 * **Platine :** le STL est déjà posé sur son dos (la face contre le mur sur le plateau), joues vers le haut. Les creux des chevilles sont sur le plateau : ce sont de petits ponts de 11 mm, sans support.
 * Aucun support d'impression pour l'une ou l'autre.
-* 4 périmètres, 4 à 5 couches dessus et dessous, remplissage gyroïde de 25 % : **environ 120 g** pour le support et **30 g** pour la platine (estimation à ±20 %).
+* 4 périmètres, 4 à 5 couches dessus et dessous, remplissage gyroïde de 25 % : **environ 110 g** pour le support et **27 g** pour la platine. Ces chiffres viennent d'une découpe d'essai dans PrusaSlicer, en PETG ; Bambu Studio donnera un résultat proche. Avec 5 périmètres et 40 %, comptez environ 130 g pour le support.
 * Le support doit glisser entre les joues avec 0,3 mm de jeu de chaque côté. Si c'est trop serré (ou trop lâche), ajustez `jeu_joue` et réimprimez la platine seulement.
 
 ## Montage
