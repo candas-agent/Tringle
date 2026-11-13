@@ -83,8 +83,8 @@ Les 2 vis de l'étagère sont placées dans les deux parties pleines de la pièc
 
 ### Matériel
 
-* 2 vis à bois **Ø4 × 16 mm** pour l'étagère, à tête plate ou fraisée de Ø8 maximum.
-* 2 vis à bois **Ø4 × 12 à 16 mm** à tête fraisée pour le fond. Elles ne doivent pas traverser le fond.
+* **Étagère : 2 vis à bois / aggloméré Ø4 × 16 mm**, avec une tête de Ø8 maximum (elle doit passer dans le tunnel Ø10 et se loger dans le lamage Ø9). Une tête cylindrique ou bombée, plate dessous, appuie le mieux. Une tête fraisée convient aussi. Préférez une empreinte **Torx (TX20)** : avec un embout aimanté, la vis tient sur l'embout pendant qu'on la monte dans le tunnel. Calcul de la longueur : 5 mm de plastique + 11 mm dans le bois. Si l'étagère fait moins de 18 mm, prenez-les plus courtes (le fichier vérifie avec `ep_etagere`).
+* **Fond : 2 vis à bois Ø4 à tête fraisée**, avec une tête de Ø8 au maximum. Leur longueur vaut 8 mm de plastique plus ce qu'elles doivent entrer dans le fond. Le plus simple : dévissez une vis d'un ancien support et prenez la même longueur, plus 8 mm moins l'épaisseur de la plaque de l'ancien support. Si le fond est un panneau mince (3 mm), une vis de 10 à 12 mm dépasse de 1 à 2 mm derrière : c'est sans conséquence s'il n'y a rien juste derrière.
 
 ### Étapes
 
