@@ -61,7 +61,7 @@ haut_crochet = 45;
 /* [Fixations] */
 // Épaisseur de l'étagère (mm) - À MESURER
 ep_etagere = 18;
-// Longueur des vis de l'étagère (mm)
+// Longueur de la vis de l'étagère (mm)
 long_vis_etagere = 16;
 // Plastique restant sous la tête de vis (mm)
 ep_sous_tete = 5;
@@ -73,6 +73,31 @@ d_acces = 10;
 d_passage = 4.5;
 // Diamètre de tête des vis à bois fraisées (vis du fond)
 d_tete_vis = 8.5;
+// Vis directes dans le fond, sous le bras (inutiles avec la traverse)
+vis_fond = false;
+
+/* [Traverse sur les chevilles existantes] */
+// Distance entre le dessous de l'étagère et l'axe des chevilles (mm) - À MESURER
+z_chevilles = 35;
+// Entraxe des deux chevilles, côte à côte (mm)
+entraxe_chevilles = 90;
+// Diamètre de passage des vis des chevilles (mm)
+d_vis_cheville = 5;
+// Diamètre de tête (fraisée) des vis des chevilles (mm)
+d_tete_cheville = 10;
+// Hauteur et épaisseur de la traverse (mm)
+h_traverse = 20;
+ep_traverse = 7;
+// Matière du support entre la traverse et le mur (mm)
+peau = 3;
+// Jeu de montage de la traverse dans sa fente (mm)
+jeu = 0.3;
+// Débord de la traverse au-delà de chaque cheville (mm)
+marge_traverse = 12;
+
+/* [Export] */
+// Pièce à exporter : "support" ou "traverse" (posée à plat pour l'impression)
+piece = "support"; // [support, traverse, aucune]
 
 /* [Aperçu] */
 // Afficher étagère, fond, porte et cintres (ne PAS exporter avec)
@@ -89,14 +114,17 @@ w             = pas - ep_montant;                    // largeur d'un logement
 jeu_crochet   = 10;
 z_creux       = -ep_haut - (haut_crochet + jeu_crochet); // fond des logements
 z_bras_bas    = z_creux - ep_bras;
-z_dos_bas     = z_bras_bas - descente_dos;
+z_ch          = -z_chevilles;                      // axe des chevilles
+z_dos_bas     = min(z_bras_bas - descente_dos, z_ch - h_traverse / 2 - 14);
+y_fente       = peau + ep_traverse + 2 * jeu;        // fond de la fente
 derniere      = premiere_encoche + (nb_cintres - 1) * pas;
 y_logements   = [for (i = [0 : nb_cintres - 1]) premiere_encoche + i * pas];
 y_bloc_ar     = premiere_encoche - w / 2;           // début du 1er logement
 y_bloc_av     = derniere + w / 2;                   // fin du dernier logement
-// Vis de l'étagère : au milieu des deux blocs pleins (arrière et avant),
-// posées par en dessous à travers un tunnel vertical.
-vis_etagere   = [(ep_dos + y_bloc_ar) / 2, (y_bloc_av + L) / 2];
+// Une seule vis dans l'étagère, à l'avant (c'est elle qui retient le
+// support), posée par en dessous à travers un tunnel vertical.
+// L'arrière est tenu par la traverse sur les chevilles.
+vis_etagere   = [(y_bloc_av + L) / 2];
 vis_fond_z    = [z_dos_bas + 10, z_dos_bas + 26];
 z_queue_haut  = z_dos_bas + 34;     // fin de la face plane des vis du fond
 vis_dans_bois = long_vis_etagere - ep_sous_tete;
@@ -111,12 +139,16 @@ assert(derniere + marge_veste <= profondeur_etagere + ecart_porte,
        str("La veste du dernier cintre (à ", derniere,
            " mm) toucherait la porte"));
 assert(w >= 2 * r_haut + 6, "Logements trop étroits : augmenter pas");
-assert(y_bloc_ar - ep_dos >= d_acces + 8,
-       "Pas assez de place derrière le 1er logement pour la vis arrière");
+assert(y_bloc_ar - y_fente >= 6,
+       "Pas assez de matière entre la fente de la traverse et le 1er logement");
 assert(L - y_bloc_av >= d_acces + 8,
        "Pas assez de place devant le dernier logement pour la vis avant");
+assert(z_chevilles - h_traverse / 2 - jeu >= 4,
+       "Chevilles trop près de l'étagère pour la traverse");
+assert(entraxe_chevilles / 2 - d_tete_cheville / 2 >= largeur / 2 + 2,
+       "Chevilles trop rapprochées : le tournevis bute sur le support");
 assert(vis_dans_bois <= ep_etagere - 3,
-       str("Les vis (", long_vis_etagere, " mm) traverseraient l'étagère de ",
+       str("La vis (", long_vis_etagere, " mm) traverseraient l'étagère de ",
            ep_etagere, " mm : prendre des vis plus courtes"));
 assert(vis_dans_bois >= 8, "Vis trop courtes : moins de 8 mm dans l'étagère");
 assert(ep_haut - ep_sous_tete >= 4, "Lamage trop profond pour la barre haute");
@@ -124,8 +156,11 @@ assert(ep_haut - ep_sous_tete >= 4, "Lamage trop profond pour la barre haute");
 echo(str("Encombrement : ", longueur, " mm de profondeur x ",
          -z_dos_bas, " mm de haut x ", largeur, " mm de large"));
 echo(str("Cintres à : ", y_logements, " mm du fond"));
-echo(str("Vis étagère à : ", vis_etagere, " mm du fond, longueur ",
+echo(str("Vis étagère à : ", vis_etagere[0], " mm du fond, longueur ",
          long_vis_etagere, " mm dont ", vis_dans_bois, " mm dans le bois"));
+echo(str("Traverse : ", entraxe_chevilles + 2 * marge_traverse, " x ", h_traverse,
+         " mm, chevilles à ", z_chevilles, " mm sous l'étagère, entraxe ",
+         entraxe_chevilles, " mm"));
 echo(str("Pièce : ", longueur, " mm, soit ", profondeur_etagere - longueur,
          " mm en retrait du bord de l'étagère"));
 echo(str("Veste la plus en avant jusqu'à ~", derniere + marge_veste,
@@ -172,9 +207,20 @@ module logement(yc) {
     }
 }
 
+// Renfort au droit de la traverse : garantit assez de matière autour de
+// la fente, même si les chevilles tombent sous le bras.
+module renfort_traverse() {
+    translate([0, z_ch - h_traverse / 2 - 6])
+        offset(r = 4) offset(delta = -4)
+            square([y_fente + 6, h_traverse + 12]);
+}
+
 module profil() {
     difference() {
-        offset(r = 2) offset(delta = -2) contour();   // aucune arête vive
+        offset(r = 2) offset(delta = -2) union() {   // aucune arête vive
+            contour();
+            renfort_traverse();
+        }
         for (y = y_logements) logement(y);
     }
 }
@@ -217,13 +263,48 @@ module support() {
                 cylinder(d = d_acces, h = -ep_haut - z_dos_bas);
         }
 
+        // Fente traversante pour la traverse, contre le mur
+        translate([-largeur, peau, z_ch - h_traverse / 2 - jeu])
+            cube([2 * largeur, ep_traverse + 2 * jeu, h_traverse + 2 * jeu]);
+
         // Vis à bois fraisées dans le fond (sous le bras, accessibles de face)
-        for (z = vis_fond_z) translate([0, 0, z]) rotate([-90, 0, 0]) {
+        if (vis_fond) for (z = vis_fond_z) translate([0, 0, z]) rotate([-90, 0, 0]) {
             translate([0, 0, -1]) cylinder(d = d_passage, h = ep_dos + 2);
             translate([0, 0, ep_dos - (d_tete_vis - d_passage) / 2])
                 cylinder(d1 = d_passage, d2 = d_tete_vis, h = (d_tete_vis - d_passage) / 2 + 0.01);
             translate([0, 0, ep_dos]) cylinder(d = d_tete_vis, h = 30);
         }
+    }
+}
+
+// ---------------------------------------------------------------------
+// Traverse : vissée dans les deux chevilles, elle passe dans la fente du
+// support et le plaque contre le mur. Les talons de ses ailes (épaisseur
+// = peau) la mettent à plat contre le mur.
+// Repère d'assemblage : même repère que le support.
+// ---------------------------------------------------------------------
+module traverse() {
+    lt = entraxe_chevilles + 2 * marge_traverse;
+    module plaque(y0, ep, x0) {
+        translate([0, y0 + ep, z_ch]) rotate([90, 0, 0])
+            linear_extrude(ep) offset(r = 4) offset(delta = -4)
+                translate([x0, -h_traverse / 2]) square([lt / 2 - x0, h_traverse]);
+    }
+    difference() {
+        union() {
+            for (m = [0, 1]) mirror([m, 0, 0]) {
+                plaque(peau, ep_traverse, -largeur / 2 - 6);        // lame
+                plaque(0, peau + 1, largeur / 2 + 1.5);              // talon
+            }
+        }
+        // Vis des chevilles, têtes fraisées côté avant
+        for (s = [-1, 1]) translate([s * entraxe_chevilles / 2, 0, z_ch])
+            rotate([-90, 0, 0]) {
+                translate([0, 0, -1]) cylinder(d = d_vis_cheville, h = 30);
+                k = (d_tete_cheville - d_vis_cheville) / 2;
+                translate([0, 0, peau + ep_traverse - k])
+                    cylinder(d1 = d_vis_cheville, d2 = d_tete_cheville, h = k + 0.01);
+            }
     }
 }
 
@@ -244,11 +325,15 @@ module crochet(y) {
 
 if (apercu) {
     color("orange") support();
+    color("royalblue") traverse();
     color("white", 0.6) translate([-200, 0, 0]) cube([400, profondeur_etagere, 18]);
     color("tan", 0.6) translate([-200, -3, z_dos_bas - 60]) cube([400, 3, 78 - z_dos_bas]);
     // trait rouge = position de la porte fermée
     color("red") translate([-200, profondeur_etagere + ecart_porte, -2]) cube([400, 2, 4]);
     color("silver") for (i = [0:nb_cintres-1]) crochet(premiere_encoche + i * pas);
-} else {
+} else if (piece == "traverse") {
+    // à plat, face avant sur le plateau
+    translate([0, 0, peau + ep_traverse]) rotate([-90, 0, 0]) translate([0, 0, -z_ch]) traverse();
+} else if (piece == "support") {
     support();
 }
