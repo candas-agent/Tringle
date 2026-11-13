@@ -29,25 +29,25 @@ marge_veste = 60;
 // Longueur totale de la pièce, dos compris (mm)
 longueur = 245;
 // Largeur de la pièce = largeur du bras sous le crochet (mm)
-largeur = 20;
+largeur = 16;
 // Épaisseur de la barre haute vissée sous l'étagère (mm)
-ep_haut = 12;
+ep_haut = 10;
 // Épaisseur de la plaque de dos (mm)
 ep_dos = 8;
 // Épaisseur du bras sous le fond des logements (mm)
-ep_bras = 14;
+ep_bras = 10;
 // Descente de la queue du dos sous le bras (zone des vis du fond) (mm)
-descente_dos = 70;
+descente_dos = 55;
 // Rayon du grand arrondi avant-bas (mm)
 r_galbe = 45;
 // Galbe du ventre sous le bras (mm, 0 = droit)
-ventre = 5;
+ventre = 2;
 // Rayon des angles hauts des logements (mm)
 r_haut = 10;
 // Arrondi des arêtes de la face supérieure à l'impression (mm)
 r_bord = 2.5;
 // Largeur des montants entre deux logements (mm)
-ep_montant = 8;
+ep_montant = 7;
 
 /* [Logements pour cintres] */
 nb_cintres = 5;
@@ -97,8 +97,8 @@ y_bloc_av     = derniere + w / 2;                   // fin du dernier logement
 // Vis de l'étagère : au milieu des deux blocs pleins (arrière et avant),
 // posées par en dessous à travers un tunnel vertical.
 vis_etagere   = [(ep_dos + y_bloc_ar) / 2, (y_bloc_av + L) / 2];
-vis_fond_z    = [z_dos_bas + 13, z_dos_bas + 33];
-z_queue_haut  = z_dos_bas + 42;     // fin de la face plane des vis du fond
+vis_fond_z    = [z_dos_bas + 10, z_dos_bas + 26];
+z_queue_haut  = z_dos_bas + 34;     // fin de la face plane des vis du fond
 vis_dans_bois = long_vis_etagere - ep_sous_tete;
 
 // ---------------------------------------------------------------------

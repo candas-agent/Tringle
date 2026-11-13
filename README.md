@@ -28,7 +28,7 @@ Pour régler la forme : `r_galbe` (arrondi avant-bas), `ventre` (galbe sous le b
 
 Les supports d'origine sont des porte-à-faux : toute la charge fait levier sur deux petites vis plantées dans le fond, qui est souvent un panneau mince. Ici, le bras est relié à la barre haute tous les 40 mm par les montants, et la barre haute est vissée sous l'étagère. Le couple créé par les vestes est donc repris surtout par la vis avant de l'étagère, qui travaille en traction, et par l'appui de la barre haute contre l'étagère.
 
-Les crochets s'accrochent **par le côté**, dans leur logement. Chaque logement offre 32 mm de large et 55 mm de haut au-dessus de son point bas.
+Les crochets s'accrochent **par le côté**, dans leur logement. Chaque logement offre 33 mm de large et 55 mm de haut au-dessus de son point bas.
 
 Ordre de grandeur pour 5 vestes de 2 kg : environ 15 N·m au niveau du dos, soit à peu près 80 N de traction sur la vis avant. Une vis Ø4 enfoncée de 11 mm dans de l'aggloméré résiste à quelques centaines de newtons à l'arrachement. Avec les montants, toute la pièce travaille comme un seul bloc.
 
@@ -38,7 +38,7 @@ Ordre de grandeur pour 5 vestes de 2 kg : environ 15 N·m au niveau du dos, soit
 * Cintres à 48, 88, 128, 168 et 208 mm du fond.
 * La pièce reste **55 mm en retrait** du bord avant de l'étagère de **300 mm** : elle ne dépasse jamais.
 * La veste la plus en avant dépasse d'environ 60 mm devant son crochet, soit à peu près **268 mm**. Elle reste donc elle aussi sous l'étagère, avec 32 mm de marge, avant même de compter l'espace jusqu'à la porte.
-* Hauteur : 151 mm. Largeur : 20 mm.
+* Hauteur : 130 mm. Largeur : 16 mm.
 
 Le fichier contient des `assert` : si vous changez un paramètre et que la pièce dépasse de l'étagère, ou que la dernière veste risque de toucher la porte, **le rendu s'arrête avec un message**. Si vous connaissez l'espace entre le bord de l'étagère et la porte fermée, indiquez-le dans `ecart_porte` (0 par défaut, par sécurité).
 
@@ -51,10 +51,10 @@ Le fichier contient des `assert` : si vous changez un paramètre et que la pièc
 | `marge_veste` | 60 | épaisseur de veste devant le dernier crochet |
 | `longueur` | 245 | profondeur de la pièce |
 | `nb_cintres`, `pas` | 5, 40 | nombre de logements et entraxe |
-| `ep_montant` | 8 | largeur des montants (logements de `pas - ep_montant` = 32 mm) |
+| `ep_montant` | 7 | largeur des montants (logements de `pas - ep_montant` = 33 mm) |
 | `haut_crochet` | 45 | hauteur de vos crochets (à mesurer) |
-| `largeur` | 20 | largeur du bras, qui doit passer dans le crochet |
-| `r_galbe`, `ventre`, `r_haut`, `r_bord` | 45, 5, 10, 2,5 | arrondis et galbes |
+| `largeur` | 16 | largeur de la pièce, qui doit passer dans le crochet |
+| `r_galbe`, `ventre`, `r_haut`, `r_bord` | 45, 2, 10, 2,5 | arrondis et galbes |
 | `ep_etagere` | 18 | épaisseur de l'étagère (**à mesurer**) |
 | `long_vis_etagere` | 16 | longueur des vis de l'étagère |
 
@@ -62,16 +62,16 @@ Avec `apercu = true`, le fichier affiche l'étagère, le fond, la porte (trait r
 
 ## Impression
 
-* **PETG recommandé.** Le PLA flue sous une charge permanente, surtout dans un placard chaud, et le bras finirait par s'affaisser.
+* **PETG de préférence, PLA possible.** Sous une charge permanente, le PLA se déforme lentement (fluage), surtout au chaud. Ici, les efforts dans la pièce restent de l'ordre de 1 à 3 MPa, très loin de ce que le PLA supporte. Dans un placard à température ambiante, loin d'un radiateur et du soleil, du PLA devrait donc tenir. Le PETG garde simplement plus de marge.
 * Imprimez la pièce **couchée sur le côté**, avec la grande face plate sur le plateau. Les couches suivent alors le cadre, ce qui donne l'orientation la plus solide. Aucun support n'est nécessaire.
-* 5 périmètres (parois de 2 mm ou plus), 5 couches dessus et dessous, remplissage gyroïde de 40 %.
-* Il faut un plateau d'au moins 250 mm (Prusa MK4, Bambu, etc.). Pour un plateau de 220 mm, réduisez `longueur` et `nb_cintres`/`pas`.
+* 4 périmètres, 4 à 5 couches dessus et dessous, remplissage gyroïde de 25 % : **environ 125 g** de filament (estimation à ±20 %, votre logiciel de découpe donnera le chiffre exact). Avec 5 périmètres et 40 %, comptez environ 155 g.
+* Encombrement à l'impression : 245 × 130 mm sur le plateau, 16 mm de haut. Il faut un plateau d'au moins 250 mm dans un sens (Prusa MK4, Bambu A1/P1/X1, etc.). Sur un plateau de 220 à 235 mm, même en diagonale, ça ne rentre pas : il faut alors réduire `longueur` et `nb_cintres`/`pas`.
 
 ## Montage
 
 ### Comment on visse sous l'étagère
 
-Les 2 vis de l'étagère sont placées dans les deux parties pleines de la pièce : à l'arrière, entre le dos et le 1er logement (à 20 mm du fond), et à l'avant, devant le dernier logement (à 234,5 mm du fond). Leur position est calculée automatiquement. Chaque vis a sa tête noyée dans un lamage Ø9, avec 5 mm de plastique sous la tête. Un **tunnel vertical Ø10** traverse la partie pleine depuis le dessous : on y passe le tournevis par en dessous pour atteindre la vis.
+Les 2 vis de l'étagère sont placées dans les deux parties pleines de la pièce : à l'arrière, entre le dos et le 1er logement (à 19,75 mm du fond), et à l'avant, devant le dernier logement (à 234,75 mm du fond). Leur position est calculée automatiquement. Chaque vis a sa tête noyée dans un lamage Ø9, avec 5 mm de plastique sous la tête. Un **tunnel vertical Ø10** traverse la partie pleine depuis le dessous : on y passe le tournevis par en dessous pour atteindre la vis.
 
 ![dessous](images/dessous.png)
 
